@@ -44,36 +44,31 @@ db.connect(err => {
 
 /* ---------- GOOGLE AUTH STRATEGY ---------- */
 
+/* ---------- GOOGLE AUTH STRATEGY ---------- */
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
+    // CHANGED: Use the full URL from .env instead of a relative path
+    callbackURL: process.env.CALLBACK_URL 
 },
 function(accessToken, refreshToken, profile, done) {
-
     const username = profile.displayName;
-
     const sql = "SELECT * FROM users WHERE username=?";
 
     db.query(sql, [username], (err, results) => {
-
         if (err) return done(err);
 
         if (results.length === 0) {
-
             const insert = "INSERT INTO users(username,password) VALUES (?,?)";
-
             db.query(insert, [username, "google"], (err) => {
                 if (err) return done(err);
                 return done(null, profile);
             });
-
         } else {
             return done(null, profile);
         }
-
     });
-
 }));
 
 
